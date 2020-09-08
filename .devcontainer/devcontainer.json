@@ -40,10 +40,10 @@
 		"visualstudioexptteam.vscodeintellicode",
 		"ms-azuretools.vscode-docker",
 		"ms-kubernetes-tools.vscode-kubernetes-tools",
-	]
+	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	"forwardPorts": [80, 8080, 5100, 5107],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "kubectl version",
