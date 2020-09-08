@@ -30,6 +30,16 @@ Take a look at the free course [Create and deploy a cloud-native ASP.NET Core mi
 
 *eShopOnContainers* is provided in two flavors: Basic and Advanced.
 
+Running locally:
+   docker-compose build --build-arg RESTORECMD=scripts/restore-packages
+   docker-compose up
+
+Health checks:
+   http://localhost:5107
+
+Front-end
+   http://localhost:5100
+
 ### Basic scenario
 
 The basic scenario can be run locally using docker-compose, and also deployed to a local Kubernetes cluster. Refer to these Wiki pages to Get Started:
