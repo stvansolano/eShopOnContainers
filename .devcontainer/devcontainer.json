@@ -3,10 +3,12 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.134.1/containers/docker-from-docker-compose
 {
 	"name": "Docker from Docker Compose + Kubernetes & Helm",
-	//"dockerFile": "Dockerfile",
-	"dockerComposeFile": "docker-compose.yml",
+	"dockerFile": "Dockerfile",
+	//"dockerComposeFile": [
+	//	"docker-compose.yml"]
+	//,
 
-	"service": "docker-from-docker",
+	//"service": "docker-from-docker",
 	"workspaceFolder": "/workspace",
 
 	// Use this environment variable if you need to bind mount your local source code into a new container.
@@ -43,7 +45,7 @@
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [80, 8080, 5100, 5107],
+	"forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "kubectl version",
@@ -53,5 +55,5 @@
 
 	// Uncomment to connect as a non-root user. See https://aka.ms/vscode-remote/containers/non-root.
 	// "overrideCommand": false,
-	// "remoteUser": "vscode"
+	//"remoteUser": "vscode"
 }
