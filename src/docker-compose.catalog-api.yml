@@ -1,0 +1,59 @@
+# docker-compose -f "src/docker-compose.catalog-api.yml"  up -d
+services:
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:2017-latest 
+    environment:
+      - SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+    ports:
+      - "5433:1433"
+    volumes:
+      - eshop-sqldata:/var/opt/mssql
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  catalog-api:
+    build:
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
+      context: .
+    environment:
+      - ConnectionString=Server=sqldata;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=sa;Password=Pass@word
+      - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
+      - EventBusConnection=rabbitmq
+      - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
+      - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
+      - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
+      - AzureStorageAccountKey=${ESHOP_AZURE_STORAGE_CATALOG_KEY}
+      - UseCustomizationData=True
+      - AzureServiceBusEnabled=False
+      - AzureStorageEnabled=False
+      - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
+      - OrchestratorType=${ORCHESTRATOR_TYPE}
+      - GRPC_PORT=81
+      - PORT=80
+      - PATH_BASE=/catalog-api
+    ports:
+      - "5101:80"
+      - "9101:81"
+    
+  functional-tests:
+    build:
+      dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
+      context: . #src
+    #command: |
+    #    cd /src/Services/Catalog/Catalog.FunctionalTests
+    #    dotnet test  
+    depends_on:
+      - catalog-api
+
+volumes:
+  eshop-sqldata:
+    external: false
+  eshop-nosqldata:
+    external: false
+  eshop-basketdata:
+    external: false
