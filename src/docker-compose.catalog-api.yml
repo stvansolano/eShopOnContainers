@@ -1,12 +1,12 @@
-# docker-compose -f "src/docker-compose.catalog-api.yml"  up -d
+#  docker-compose -f "src/docker-compose.catalog-api.yml" up --env-file ./config/.env.dev -d
 version: '3.4'
 
 services:
   sqldata:
     image: mcr.microsoft.com/mssql/server:2017-latest 
     environment:
-      - SA_PASSWORD=Pass@word
-      - ACCEPT_EULA=Y
+      - SA_PASSWORD=$ESHOP_SQL_SERVER_SA_USER
+      - ACCEPT_EULA=$ESHOP_SQL_SERVER_SA_PASSWORD
     ports:
       - "5433:1433"
     volumes:
@@ -14,6 +14,10 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${ESHOP_SERVICE_BUS_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${ESHOP_SERVICE_BUS_PASSWORD}
     ports:
       - "15672:15672"
       - "5672:5672"
@@ -23,9 +27,9 @@ services:
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
       context: .
     environment:
-      - ConnectionString=Server=sqldata;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sqldata,5433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=sa;Password=Pass@word
       - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
-      - EventBusConnection=http://rabbitmq
+      - EventBusConnection=rabbitmq
       - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
       - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
       - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
@@ -48,18 +52,32 @@ services:
       - rabbitmq
       - sqldata
 
-  functional-tests:
+  webstatus:
+    #image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
     build:
-      dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
       context: . #src
-    #command: |
-    #    cd /src/Services/Catalog/Catalog.FunctionalTests
-    #    dotnet test  
+      dockerfile: Web/WebStatus/Dockerfile
     depends_on:
+      - rabbitmq
+      - sqldata
+      - catalog-api
+  tests:
+    build:
+      context: . #src
+      dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+    ports:
+      - "5108:80"
+    depends_on:
+      - rabbitmq
+      - sqldata
       - catalog-api
     links:
       - rabbitmq
       - sqldata
+      - catalog-api
 
 volumes:
   eshop-sqldata:
