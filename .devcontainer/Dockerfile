@@ -27,15 +27,6 @@ ARG INSTALL_AZURE_CLI="false"
 ARG COMPOSE_VERSION=1.24.0
 
 # Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
-COPY library-scripts/*.sh /tmp/library-scripts/
-RUN apt-get update \
-    && /bin/bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" \
-    # Use Docker script from script library to set things up
-    && /bin/bash /tmp/library-scripts/docker-debian.sh "${ENABLE_NONROOT_DOCKER}" "${SOURCE_SOCKET}" "${TARGET_SOCKET}" "${USERNAME}" \
-    # Clean up
-    && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
-
-# Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends apt-utils dialog 2>&1 \
