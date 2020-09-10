@@ -1,4 +1,6 @@
 # docker-compose -f "src/docker-compose.catalog-api.yml"  up -d
+version: '3.4'
+
 services:
   sqldata:
     image: mcr.microsoft.com/mssql/server:2017-latest 
@@ -23,7 +25,7 @@ services:
     environment:
       - ConnectionString=Server=sqldata;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=sa;Password=Pass@word
       - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
-      - EventBusConnection=rabbitmq
+      - EventBusConnection=http://rabbitmq
       - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
       - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
       - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
@@ -39,7 +41,13 @@ services:
     ports:
       - "5101:80"
       - "9101:81"
-    
+    depends_on:
+      - rabbitmq
+      - sqldata
+    links:
+      - rabbitmq
+      - sqldata
+
   functional-tests:
     build:
       dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
@@ -49,11 +57,10 @@ services:
     #    dotnet test  
     depends_on:
       - catalog-api
+    links:
+      - rabbitmq
+      - sqldata
 
 volumes:
   eshop-sqldata:
-    external: false
-  eshop-nosqldata:
-    external: false
-  eshop-basketdata:
     external: false

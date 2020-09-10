@@ -1,0 +1,23 @@
+
+name: Docker Continuous Integration
+
+on:
+  push:
+    branches:
+      - 'dev'
+
+    paths:
+    - '.github/workflows/docker-ci.catalog-api.yml'
+    - 'src/docker-compose.catalog-api.yml'
+    - 'src/Services/Catalog/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - uses: actions/checkout@v2
+    - name: Build and Test Docker images
+      run: |
+        docker-compose -f src/docker-compose.catalog-api.yml up -d
+        docker ps
