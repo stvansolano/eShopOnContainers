@@ -1,4 +1,4 @@
-#  docker-compose -f "src/docker-compose.catalog-api.yml" up --env-file ./config/.env.dev -d
+#  docker-compose -f "docker-compose.catalog-api.yml" up --env-file ./config/.env.dev -d
 version: '3.4'
 
 services:
@@ -52,22 +52,26 @@ services:
       - rabbitmq
       - sqldata
 
-  webstatus:
+  ##webstatus:
     #image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
-    build:
-      context: . #src
-      dockerfile: Web/WebStatus/Dockerfile
-    depends_on:
-      - rabbitmq
-      - sqldata
-      - catalog-api
-  tests:
+  ##  build:
+  ##    context: . #src
+  ##    dockerfile: Web/WebStatus/Dockerfile
+  ##  depends_on:
+  ##    - rabbitmq
+  ##    - sqldata
+  ##    - catalog-api
+  
+  test-server:
     build:
       context: . #src
       dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:80
+      - EventBusConnection=rabbitmq
+      - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
+      - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
     ports:
       - "5108:80"
     depends_on:
