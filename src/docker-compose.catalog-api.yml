@@ -3,6 +3,7 @@ version: '3.4'
 
 services:
   sqldata:
+    network_mode: bridge
     image: mcr.microsoft.com/mssql/server:2017-latest 
     environment:
       - SA_PASSWORD=${ESHOP_SQL_SERVER_SA_USER}
@@ -13,8 +14,8 @@ services:
       - eshop-sqldata:/var/opt/mssql
 
   rabbitmq:
+    network_mode: bridge
     image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=${ESHOP_SERVICE_BUS_USERNAME}
       - RABBITMQ_DEFAULT_PASS=${ESHOP_SERVICE_BUS_PASSWORD}
@@ -23,11 +24,12 @@ services:
       - "5672:5672"
 
   catalog-api:
+    network_mode: bridge
     build:
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
       context: .
     environment:
-      - ConnectionString=Server=sqldata,5433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=sa;Password=Pass@word
+      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_SA_USER};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
       - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
       - EventBusConnection=rabbitmq
       - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
@@ -53,6 +55,7 @@ services:
       - sqldata
 
   ##webstatus:
+  ##  network_mode: bridge
     #image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
   ##  build:
   ##    context: . #src
@@ -63,15 +66,26 @@ services:
   ##    - catalog-api
   
   test-server:
+    network_mode: bridge
     build:
       context: . #src
       dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_SA_USER};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
+      - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
       - EventBusConnection=rabbitmq
       - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
       - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
+      - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
+      - AzureStorageAccountKey=${ESHOP_AZURE_STORAGE_CATALOG_KEY}
+      - UseCustomizationData=True
+      - AzureServiceBusEnabled=False
+      - AzureStorageEnabled=False
+      - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
+      - OrchestratorType=${ORCHESTRATOR_TYPE}
+      - GRPC_PORT=81
+      - PORT=80
+      - PATH_BASE=/catalog-api
     ports:
       - "5108:80"
     depends_on:
@@ -81,8 +95,13 @@ services:
     links:
       - rabbitmq
       - sqldata
-      - catalog-api
-
+      - catalog-api 
+  
 volumes:
   eshop-sqldata:
     external: false
+
+networks:
+  default:
+    external:
+      name: test
