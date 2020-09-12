@@ -20,6 +20,8 @@ COPY --from=build /src/Services/Catalog/Catalog.API/eshop.pfx .
 #RUN ["dotnet", "test"]
 #RUN ["cat", "Unit tests runned"]
 
+
 FROM build as functionaltest
 WORKDIR /src/Services/Catalog/Catalog.FunctionalTests
-RUN ["dotnet", "test"]
+
+RUN apt-get update && apt-get install -y netcat

@@ -1,4 +1,4 @@
-# docker-compose -f "docker-compose.catalog-api.yml" up --env-file /.env.dev -d
+# docker-compose --file src/docker-compose.catalog-api.yml --env-file ./src/dev.env up --exit-code-from test-server
 version: '3.4'
 
 services:
@@ -6,10 +6,10 @@ services:
     network_mode: bridge
     image: mcr.microsoft.com/mssql/server:2017-latest 
     environment:
-      - SA_PASSWORD=${ESHOP_SQL_SERVER_SA_USER}
-      - ACCEPT_EULA=${ESHOP_SQL_SERVER_SA_PASSWORD}
+      - SA_PASSWORD=${ESHOP_SQL_SERVER_SA_PASSWORD}
+      - ACCEPT_EULA=Y
     ports:
-      - "5433:1433"
+      - "1433:1433"
     volumes:
       - eshop-sqldata:/var/opt/mssql
 
@@ -29,7 +29,7 @@ services:
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
       context: .
     environment:
-      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_SA_USER};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
+      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_USERNAME};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
       - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
       - EventBusConnection=rabbitmq
       - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
@@ -71,7 +71,7 @@ services:
       context: . #src
       dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
     environment:
-      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_SA_USER};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
+      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_USERNAME};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
       - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
       - EventBusConnection=rabbitmq
       - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
@@ -95,8 +95,17 @@ services:
     links:
       - rabbitmq
       - sqldata
-      - catalog-api 
-  
+      - catalog-api
+    command: >
+      /bin/sh -c "
+      echo Waiting for rabbitmq service start...;
+      while ! nc -z rabbitmq 5672;
+      do
+        sleep 1;
+      done;
+      echo Connected!;
+      dotnet test;"
+
 volumes:
   eshop-sqldata:
     external: false
