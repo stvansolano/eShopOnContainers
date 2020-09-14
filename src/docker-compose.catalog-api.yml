@@ -104,7 +104,9 @@ services:
         sleep 1;
       done;
       echo Connected!;
-      dotnet test;"
+      dotnet tool install -g dotnet-reportgenerator-globaltool;
+      dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura && reportgenerator -reports:TestResults\{guid}\coverage.cobertura.xml -targetdir:Reports -reporttypes:Html
+      "
 
 volumes:
   eshop-sqldata:
