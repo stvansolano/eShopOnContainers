@@ -17,6 +17,33 @@ jobs:
     steps:
     
     - uses: actions/checkout@v2
+
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.200'
+
+    - name: Build with dotnet
+      run: |
+        dotnet build "src/Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj" --configuration Debug
+
+    - name: Install ReportGenerator tool
+      run: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+
+    - name: dotnet test
+      run: |
+        dotnet test "src/Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        reportgenerator -reports:src/Services/Catalog/Catalog.UnitTests/coverage.cobertura.xml \
+                        -targetdir:src/Services/Catalog/Catalog.UnitTests/coveragereport/ \
+                        -reporttypes:Html        
+
+    - name: upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: unit-test-coveragereport
+        path: src/Services/Catalog/Catalog.UnitTests/coveragereport/
+
     - name: Build and Test Docker images
       run: |
         docker compose -v
