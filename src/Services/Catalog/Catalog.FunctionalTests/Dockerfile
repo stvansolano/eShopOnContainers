@@ -3,20 +3,16 @@
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS base
 WORKDIR /src
-COPY "BuildingBlocks/EventBus/EventBus/EventBus.csproj" "BuildingBlocks/EventBus/EventBus/EventBus.csproj"
-COPY "BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj" "BuildingBlocks/EventBus/EventBusRabbitMQ/EventBusRabbitMQ.csproj"
-COPY "BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj" "BuildingBlocks/EventBus/EventBusServiceBus/EventBusServiceBus.csproj"
-COPY "BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj" "BuildingBlocks/EventBus/IntegrationEventLogEF/IntegrationEventLogEF.csproj"
-COPY "Services/Catalog/Catalog.API/Catalog.API.csproj" "Services/Catalog/Catalog.API/Catalog.API.csproj"
-COPY "Services/Catalog/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj" "Services/Catalog/Catalog.FunctionalTests/Catalog.FunctionalTests.csproj"
-COPY "Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj" "Services/Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj"
-
-COPY "docker-compose.dcproj" "docker-compose.dcproj"
+COPY "BuildingBlocks/EventBus/EventBus/" "BuildingBlocks/EventBus/EventBus/"
+COPY "BuildingBlocks/EventBus/EventBusRabbitMQ/" "BuildingBlocks/EventBus/EventBusRabbitMQ/"
+COPY "BuildingBlocks/EventBus/EventBusServiceBus/" "BuildingBlocks/EventBus/EventBusServiceBus/"
+COPY "BuildingBlocks/EventBus/IntegrationEventLogEF" "BuildingBlocks/EventBus/IntegrationEventLogEF/"
+COPY "Services/Catalog/Catalog.API/" "Services/Catalog/Catalog.API/"
+COPY "Services/Catalog/Catalog.FunctionalTests/" "Services/Catalog/Catalog.FunctionalTests/"
+COPY "Services/Catalog/Catalog.UnitTests/" "Services/Catalog/Catalog.UnitTests/"
 
 COPY "NuGet.config" "NuGet.config"
 
-COPY /src/Services/Catalog/Catalog.API/Proto /app/Proto
-COPY /src/Services/Catalog/Catalog.API/eshop.pfx .
 WORKDIR /src/Services/Catalog/Catalog.FunctionalTests
 
 RUN apt-get update && apt-get install -y netcat

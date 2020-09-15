@@ -1,4 +1,6 @@
 # docker-compose --file src/docker-compose.catalog-api.yml --env-file ./src/dev.env up --exit-code-from test-server
+# docker-compose --file src/docker-compose.catalog-api.yml --env-file ./src/dev.env up -d
+
 version: '3.4'
 
 services:
@@ -65,6 +67,32 @@ services:
   ##    - sqldata
   ##    - catalog-api
   
+  unit-tests:
+    network_mode: bridge
+    build:
+      context: . #src
+      dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
+    environment:
+      - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_USERNAME};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
+      - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
+      - EventBusConnection=rabbitmq
+      - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
+      - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
+      - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
+      - AzureStorageAccountKey=${ESHOP_AZURE_STORAGE_CATALOG_KEY}
+      - UseCustomizationData=True
+      - AzureServiceBusEnabled=False
+      - AzureStorageEnabled=False
+      - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
+      - OrchestratorType=${ORCHESTRATOR_TYPE}
+      - GRPC_PORT=81
+      - PORT=80
+      - PATH_BASE=/catalog-api
+    command: >
+      /bin/sh -c "
+      dotnet test "/src/Services/Catalog/Catalog.UnitTests" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura;
+      sleep infinity"
+
   test-server:
     network_mode: bridge
     build:
@@ -104,8 +132,7 @@ services:
         sleep 1;
       done;
       echo Connected!;
-      dotnet tool install -g dotnet-reportgenerator-globaltool;
-      dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura && reportgenerator -reports:TestResults\{guid}\coverage.cobertura.xml -targetdir:Reports -reporttypes:Html
+      dotnet test;
       "
 
 volumes:
