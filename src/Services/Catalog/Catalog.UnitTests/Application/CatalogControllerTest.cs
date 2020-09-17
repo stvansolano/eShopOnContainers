@@ -61,7 +61,7 @@ namespace UnitTest.Catalog.Application
             Assert.Equal(expectedItemsInPage, page.Data.Count());
         }
 
-        /*
+        
         [Fact]
         public async Task Get_catalog_items_by_name_success()
         {
@@ -87,7 +87,6 @@ namespace UnitTest.Catalog.Application
             Assert.Equal(pageIndex, page.PageIndex);
             Assert.Equal(expectedItemsInPage, page.Data.Count());
         }
-        */
 
         private static List<CatalogItem> GetFakeCatalog()
         {
