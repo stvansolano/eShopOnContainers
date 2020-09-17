@@ -42,7 +42,8 @@
 		"visualstudioexptteam.vscodeintellicode",
 		"ms-azuretools.vscode-docker",
 		"ms-kubernetes-tools.vscode-kubernetes-tools",
-		"ms-mssql.mssql"
+		"ms-mssql.mssql",
+		"formulahendry.dotnet-test-explorer"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
