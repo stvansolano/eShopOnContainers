@@ -56,47 +56,6 @@ services:
       - rabbitmq
       - sqldata
 
-  ##webstatus:
-  ##  network_mode: bridge
-    #image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
-  ##  build:
-  ##    context: . #src
-  ##    dockerfile: Web/WebStatus/Dockerfile
-  ##  depends_on:
-  ##    - rabbitmq
-  ##    - sqldata
-  ##    - catalog-api
-  
-  #unit-tests:
-  #  network_mode: bridge
-  #  build:
-  #    context: . #src
-  #    dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
-  #  environment:
-  #    - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_USERNAME};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
-  #    - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
-  #    - EventBusConnection=rabbitmq
-  #    - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
-  #    - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
-  #    - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
-  #    - AzureStorageAccountKey=${ESHOP_AZURE_STORAGE_CATALOG_KEY}
-  #    - UseCustomizationData=True
-  #    - AzureServiceBusEnabled=False
-  #    - AzureStorageEnabled=False
-  #    - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
-  #    - OrchestratorType=${ORCHESTRATOR_TYPE}
-  #    - GRPC_PORT=81
-  #    - PORT=80
-  #    - PATH_BASE=/catalog-api
-  #  command: >
-  #    /bin/sh -c "
-  #    cd /src/Services/Catalog/Catalog.UnitTests
-  #    ;dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
-  #    ;reportgenerator -reports:/src/Services/Catalog/Catalog.UnitTests/coverage.cobertura.xml \
-  #                     -targetdir:coveragereport \
-  #                     -reporttypes:Html
-  #    ;sleep infinity"
-
   test-server:
     network_mode: bridge
     build:
@@ -147,3 +106,46 @@ networks:
   default:
     external:
       name: test
+
+
+
+  ##webstatus:
+  ##  network_mode: bridge
+    #image: ${REGISTRY:-eshop}/webstatus:${PLATFORM:-linux}-${TAG:-latest}
+  ##  build:
+  ##    context: . #src
+  ##    dockerfile: Web/WebStatus/Dockerfile
+  ##  depends_on:
+  ##    - rabbitmq
+  ##    - sqldata
+  ##    - catalog-api
+  
+  #unit-tests:
+  #  network_mode: bridge
+  #  build:
+  #    context: . #src
+  #    dockerfile: Services/Catalog/Catalog.FunctionalTests/Dockerfile
+  #  environment:
+  #    - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.CatalogDb;User Id=${ESHOP_SQL_SERVER_USERNAME};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
+  #    - PicBaseUrl=${ESHOP_STORAGE_CATALOG_URL}
+  #    - EventBusConnection=rabbitmq
+  #    - EventBusUserName=${ESHOP_SERVICE_BUS_USERNAME}
+  #    - EventBusPassword=${ESHOP_SERVICE_BUS_PASSWORD}
+  #    - AzureStorageAccountName=${ESHOP_AZURE_STORAGE_CATALOG_NAME}
+  #    - AzureStorageAccountKey=${ESHOP_AZURE_STORAGE_CATALOG_KEY}
+  #    - UseCustomizationData=True
+  #    - AzureServiceBusEnabled=False
+  #    - AzureStorageEnabled=False
+  #    - ApplicationInsights__InstrumentationKey=${INSTRUMENTATION_KEY}
+  #    - OrchestratorType=${ORCHESTRATOR_TYPE}
+  #    - GRPC_PORT=81
+  #    - PORT=80
+  #    - PATH_BASE=/catalog-api
+  #  command: >
+  #    /bin/sh -c "
+  #    cd /src/Services/Catalog/Catalog.UnitTests
+  #    ;dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+  #    ;reportgenerator -reports:/src/Services/Catalog/Catalog.UnitTests/coverage.cobertura.xml \
+  #                     -targetdir:coveragereport \
+  #                     -reporttypes:Html
+  #    ;sleep infinity"

@@ -12,24 +12,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using System;
 
 namespace UnitTest.Catalog.Application
 {
     public class CatalogControllerTest
     {
-        private readonly DbContextOptions<CatalogContext> _dbOptions;
-
-        public CatalogControllerTest()
+        private static CatalogContext GetDbContext()
         {
-            _dbOptions = new DbContextOptionsBuilder<CatalogContext>()
-                .UseInMemoryDatabase(databaseName: "in-memory")
+            var dbOptions = new DbContextOptionsBuilder<CatalogContext>()
+                .UseInMemoryDatabase(databaseName: "in-memory" + Guid.NewGuid().ToString())
                 .Options;
-
-            using (var dbContext = new CatalogContext(_dbOptions))
-            {
-                dbContext.AddRange(GetFakeCatalog());
-                dbContext.SaveChanges();
-            }
+            
+            var dbContext = new CatalogContext(dbOptions);
+            
+            dbContext.AddRange(GetFakeCatalog());
+            dbContext.SaveChanges();
+            return dbContext;
         }
 
         [Fact]
@@ -44,7 +43,7 @@ namespace UnitTest.Catalog.Application
             var expectedItemsInPage = 2;
             var expectedTotalItems = 6;
 
-            var catalogContext = new CatalogContext(_dbOptions);
+            var catalogContext = GetDbContext();
             var catalogSettings = new TestCatalogSettings();
 
             var integrationServicesMock = new Mock<ICatalogIntegrationEventService>();
@@ -62,7 +61,35 @@ namespace UnitTest.Catalog.Application
             Assert.Equal(expectedItemsInPage, page.Data.Count());
         }
 
-        private List<CatalogItem> GetFakeCatalog()
+        /*
+        [Fact]
+        public async Task Get_catalog_items_by_name_success()
+        {
+            //Arrange
+            var pageIndex = 0;
+
+            var expectedItemsInPage = 1;
+            var expectedTotalItems = 1;
+
+            var catalogContext = GetDbContext();
+            var catalogSettings = new TestCatalogSettings();
+
+            var integrationServicesMock = new Mock<ICatalogIntegrationEventService>();
+
+            //Act
+            var orderController = new CatalogController(catalogContext, catalogSettings, integrationServicesMock.Object);
+            var actionResult = await orderController.ItemsWithNameAsync("fakeItemA");
+            
+            //Assert
+            Assert.IsType<ActionResult<PaginatedItemsViewModel<CatalogItem>>>(actionResult);
+            var page = Assert.IsAssignableFrom<PaginatedItemsViewModel<CatalogItem>>(actionResult.Value);
+            Assert.Equal(expectedTotalItems, page.Count);
+            Assert.Equal(pageIndex, page.PageIndex);
+            Assert.Equal(expectedItemsInPage, page.Data.Count());
+        }
+        */
+
+        private static List<CatalogItem> GetFakeCatalog()
         {
             return new List<CatalogItem>()
             {
