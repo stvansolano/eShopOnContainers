@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build (catalog)",
             "command": "dotnet",
             "type": "process",
             "args": [
@@ -14,12 +14,12 @@
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "publish",
+            "label": "build (ordering)",
             "command": "dotnet",
             "type": "process",
             "args": [
-                "publish",
-                "${workspaceFolder}/src/Services/Catalog/Catalog.API/Catalog.API.csproj",
+                "build",
+                "${workspaceFolder}/src/Services/Ordering/Ordering.API/Ordering.API.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
