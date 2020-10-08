@@ -134,7 +134,7 @@ services:
     image: ${REGISTRY:-eshop}/ordering.api:${PLATFORM:-linux}-${TAG:-latest}
     build:
       context: .
-      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile.develop
     depends_on:
       - sqldata
       - rabbitmq
@@ -144,7 +144,7 @@ services:
       - rabbitmq
       - identity-api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://0.0.0.0:80
       - ConnectionString=Server=sqldata,1433;Database=Microsoft.eShopOnContainers.Services.IdentityDb;User Id=${ESHOP_SQL_SERVER_USERNAME};Password=${ESHOP_SQL_SERVER_SA_PASSWORD}
       - IdentityUrl=http://${ESHOP_EXTERNAL_DNS_NAME_OR_IP}:5105
